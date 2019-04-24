@@ -1,6 +1,6 @@
-#Protect Web-Services with OpenIG
+# Protect Web-Services with OpenIG
 
-##How to run
+## How to run
 
 ### Build
 Build sample service project
