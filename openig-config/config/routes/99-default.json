@@ -8,7 +8,7 @@
       "headers": {
         "Content-Type": [ "application/json" ]
       },
-      "entity": "{ \"error\": \"Something went wrong1, please contact your system administrator.\"}"
+      "entity": "{ \"error\": \"Something went wrong, please contact your system administrator.\"}"
     }
   },
   "audit": "/404"
