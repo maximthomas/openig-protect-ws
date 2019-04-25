@@ -5,6 +5,7 @@ import org.forgerock.json.jose.jws.SigningManager
 import org.forgerock.http.protocol.Status
 import java.security.spec.X509EncodedKeySpec
 
+//extract jwt from request header
 def jwt = request.headers['Authorization']?.firstValue
 
 if (jwt!=null && jwt.startsWith("Bearer eyJ")) {
@@ -14,19 +15,19 @@ if (jwt!=null && jwt.startsWith("Bearer eyJ")) {
         //parse jwt
         def sjwt=new JwtBuilderFactory().reconstruct(jwt, SignedJwt.class)
 
-        if ((sjwt.getClaimsSet().getExpirationTime()!=null && sjwt.getClaimsSet().getExpirationTime().before(new Date())))
-            throw new Exception("signature expired "+sjwt.getClaimsSet().getExpirationTime())
+        //verify jwt signature
         if (!sjwt.verify(new SigningManager().newRsaSigningHandler(getKey(sjwt.getClaimsSet()))))
             throw new Exception("invalid signature")
 
-        //add user name from JWT to header
+        //check jwt expiration
+        if ((sjwt.getClaimsSet().getExpirationTime()!=null && sjwt.getClaimsSet().getExpirationTime().before(new Date())))
+            throw new Exception("signature expired "+sjwt.getClaimsSet().getExpirationTime())
+
+        //add name from JWT claim to header
         request.headers.put('X-Auth-Username', sjwt.getClaimsSet().getClaim("name"))
 
         return next.handle(new org.forgerock.openig.openam.StsContext(context, jwt), request)
     }catch(Exception e) {
-        println jwt
-        e.printStackTrace()
-        //returns 401 status if exception occurred
         return getUnauthorizedResponse(e.getMessage())
     }
 } else {
@@ -35,6 +36,7 @@ if (jwt!=null && jwt.startsWith("Bearer eyJ")) {
 }
 
 return next.handle(context, request)
+
 
 def getUnauthorizedResponse(message) {
     def response = new Response()
