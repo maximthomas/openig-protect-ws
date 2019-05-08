@@ -5,8 +5,6 @@ services:
     build:
       context: ./sample-service
     restart: always
-    ports:
-      - "8081:8080"
 
   openig:
     image: openidentityplatform/openig:latest
