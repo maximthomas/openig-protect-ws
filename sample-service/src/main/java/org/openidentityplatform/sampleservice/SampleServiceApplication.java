@@ -25,7 +25,7 @@ public class SampleServiceApplication {
 
     @RestController
     public static class IndexController {
-        @RequestMapping("/")
+        @RequestMapping({"/", "/kafka2http", "/mq2http"})
         public Map<String, String> index(@RequestBody Optional<String> body) {
             return Collections.singletonMap("hello", "world");
         }
