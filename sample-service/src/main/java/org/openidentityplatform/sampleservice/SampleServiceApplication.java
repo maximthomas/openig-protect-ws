@@ -15,12 +15,7 @@ import org.springframework.web.filter.CommonsRequestLoggingFilter;
 
 import javax.servlet.http.HttpServletRequest;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 @SpringBootApplication
 public class SampleServiceApplication {
@@ -31,7 +26,7 @@ public class SampleServiceApplication {
     @RestController
     public static class IndexController {
         @RequestMapping("/")
-        public Map<String, String> index(@RequestBody String body) {
+        public Map<String, String> index(@RequestBody Optional<String> body) {
             return Collections.singletonMap("hello", "world");
         }
 
