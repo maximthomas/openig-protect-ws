@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WS-Client</title>
+    <style>
+        #log p {
+            margin: 0;
+        }
+        #log p.error {
+            color: red;
+        }
+    </style>
+
+</head>
+<body>
+  <div>
+    <h1>WS-Client</h1>
+      <button id="connect" type="button">Connect</button>
+      &nbsp;
+      <button id="send" type="button">Send Message</button>
+      <br>
+      <label for="log">Log:</label>
+      <div id="log">
+
+      </div>
+  </div>
+  <script>
+      const connectBtn = document.getElementById("connect");
+      connectBtn.onclick = connect;
+      let socket;
+      function connect() {
+          appendToConsole("connecting...")
+          socket = new WebSocket('ws://localhost:8080/ws-handler');
+          socket.onmessage = function(event) {
+              appendToConsole(`got response message from server: ${event.data}`);
+          };
+          socket.onopen = function () {
+              appendToConsole("connected")
+          };
+          socket.onerror = function (e) {
+              appendToConsole("error occurred: " + e, true)
+          }
+      }
+
+      const sendBtn = document.getElementById("send");
+      sendBtn.onclick = function () {
+          appendToConsole("sending message...");
+          socket.send('Test message');
+      }
+
+      function appendToConsole(message, error) {
+          let className = '';
+          if (error) {
+              console.error(message);
+              className = 'error';
+          } else {
+              console.log(message);
+          }
+          const log = document.getElementById("log");
+          const p = document.createElement("p");
+          p.innerText = message;
+          p.className = className;
+          log.append(p)
+      }
+
+  </script>
+</body>
+</html>
