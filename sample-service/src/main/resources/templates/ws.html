@@ -31,7 +31,7 @@
       let socket;
       function connect() {
           appendToConsole("connecting...")
-          socket = new WebSocket('ws://localhost:8080/ws-handler');
+          socket = new WebSocket(`ws://${location.host}/ws-handler`);
           socket.onmessage = function(event) {
               appendToConsole(`got response message from server: ${event.data}`);
           };
