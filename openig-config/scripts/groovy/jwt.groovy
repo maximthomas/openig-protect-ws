@@ -16,31 +16,40 @@ if (jwt!=null && jwt.startsWith("Bearer eyJ")) {
         def sjwt=new JwtBuilderFactory().reconstruct(jwt, SignedJwt.class)
 
         //verify jwt signature
-        if (!sjwt.verify(new SigningManager().newRsaSigningHandler(getKey(sjwt.getClaimsSet()))))
+        if (!sjwt.verify(new SigningManager().newRsaSigningHandler(getKey(sjwt.getClaimsSet())))) {
             throw new Exception("invalid signature")
+        }
 
         //check jwt expiration
-        if ((sjwt.getClaimsSet().getExpirationTime()!=null && sjwt.getClaimsSet().getExpirationTime().before(new Date())))
+        if ((sjwt.getClaimsSet().getExpirationTime()!=null && sjwt.getClaimsSet().getExpirationTime().before(new Date()))) {
             throw new Exception("signature expired "+sjwt.getClaimsSet().getExpirationTime())
+        }
+
+        //check role
+         if (!sjwt.getClaimsSet().keys().contains("role") 
+            || !allowedRole.equals(sjwt.getClaimsSet().getClaim("role", String.class))) {
+             return getErrorResponse(Status.FORBIDDEN, "Forbidden")            
+        }
 
         //add name from JWT claim to header
         request.headers.put('X-Auth-Username', sjwt.getClaimsSet().getClaim("name"))
 
         return next.handle(new org.forgerock.openig.openam.StsContext(context, jwt), request)
-    }catch(Exception e) {
-        return getUnauthorizedResponse(e.getMessage())
+    } catch(Exception e) {
+        e.printStackTrace();
+        return getErrorResponse(Status.UNAUTHORIZED, e.getMessage())
     }
 } else {
     //returns 401 status if JWT not present in request
-    return getUnauthorizedResponse("Not Authenticated")
+    return getErrorResponse(Status.UNAUTHORIZED, "Not Authenticated")
 }
 
 return next.handle(context, request)
 
 
-def getUnauthorizedResponse(message) {
+def getErrorResponse(status, message) {
     def response = new Response()
-    response.status = Status.UNAUTHORIZED
+    response.status = status
     response.headers['Content-Type'] = "application/json"
     response.setEntity("{'error' : '" + message + "'}")
     return response
