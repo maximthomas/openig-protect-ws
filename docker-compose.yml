@@ -12,7 +12,7 @@ services:
     volumes:
       - ./openig-config:/usr/local/openig-config
     environment:
-      CATALINA_OPTS: -Dopenig.base=/usr/local/openig-config -Dendpoint.api=http://sample-service:8080/
+      CATALINA_OPTS: -Dopenig.base=/usr/local/openig-config -Dendpoint.api=http://sample-service:8080
     ports:
       - "8080:8080"
 

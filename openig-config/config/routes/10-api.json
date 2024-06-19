@@ -86,8 +86,9 @@
                           "file": "jwt.groovy",
                           "args": {
                             "iss": {
-                              "sample-service": "${read('/usr/local/openig-config/keys/public_key.pem')}"
-                            }
+                              "sample-service": "${read('/usr/local/openig-config/keys/public_key.pem')}"                              
+                            },
+                            "allowedRole": "manager"
                           }
                         }
                       }
