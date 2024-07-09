@@ -39,14 +39,25 @@
               appendToConsole("connected")
           };
           socket.onerror = function (e) {
-              appendToConsole("error occurred: " + e, true)
+              appendToConsole("socket error occurred", true);
+          }
+          socket.onclose = function () {
+              appendToConsole("socket connection closed")
           }
       }
 
       const sendBtn = document.getElementById("send");
       sendBtn.onclick = function () {
+          if(socket.readyState !== WebSocket.OPEN) {
+              appendToConsole("socket is not open", true);
+              return;
+          }
           appendToConsole("sending message...");
-          socket.send('Test message');
+          try {
+              socket.send('Test message');
+          } catch (e) {
+              appendToConsole("error sending message: " + e.message, true)
+          }
       }
 
       function appendToConsole(message, error) {
