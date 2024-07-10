@@ -6,7 +6,17 @@
   "handler": {
     "type": "Chain",
     "config": {
-      "filters": [      
+      "filters": [
+        {
+          "type": "ThrottlingFilter",
+          "config": {
+            "requestGroupingPolicy": "",
+            "rate": {
+              "numberOfRequests": 5,
+              "duration": "5 s"
+            }
+          }
+        },
         "content-type-accept-match"
       ],
       "handler": "EndpointHandler"

@@ -35,7 +35,7 @@
                 "throttlingRatesMapping": {
                   "supervisor": {
                     "numberOfRequests": 10,
-                    "duration": "10 s"
+                    "duration": "5 s"
                   }
                 },
                 "defaultRate": {
