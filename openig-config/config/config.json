@@ -1,11 +1,89 @@
 {
   "heap": [
+    {
+      "type": "SwitchFilter",
+      "name": "content-type-accept-match",
+      "config": {
+        "onResponse": [
+          {
+            "condition": "${response.headers['Content-Type'][0].split(';')[0] != request.headers['Accept'][0].split(';')[0] }",
+            "handler": {
+              "type": "StaticResponseHandler",
+              "config": {
+                "status": 406,
+                "reason": "Not Acceptable",
+                "headers": {
+                  "Content-Type": [
+                    "application/json"
+                  ]
+                },
+                "entity": "{ \"error\": \"Not Acceptable\"}"
+              }
+            }
+          }
+        ]
+      }
+    }
   ],
   "handler": {
     "type": "Chain",
     "config": {
       "filters": [
-
+        {
+          "type": "SwitchFilter",
+          "config": {
+            "onRequest": [
+              {
+                "condition": "${request.method != 'POST' and request.method != 'GET'}",
+                "handler": {
+                  "type": "StaticResponseHandler",
+                  "config": {
+                    "status": 405,
+                    "reason": "Method not allowed",
+                    "headers": {
+                      "Content-Type": [
+                        "application/json"
+                      ]
+                    },
+                    "entity": "{ \"error\": \"Method not allowed\"}"
+                  }
+                }
+              },
+              {
+                "condition": "${request.method == 'POST' and request.headers['Content-Type'][0].split(';')[0] != 'application/json'}",
+                "handler": {
+                  "type": "StaticResponseHandler",
+                  "config": {
+                    "status": 415,
+                    "reason": "Unsupported Media Type",
+                    "headers": {
+                      "Content-Type": [
+                        "application/json"
+                      ]
+                    },
+                    "entity": "{ \"error\": \"Unsupported Media Type\"}"
+                  }
+                }
+              }
+            ]            
+          }
+        },
+        
+        {
+          "type": "HeaderFilter",
+          "comment": "Add security headers to response",
+          "config": {
+            "messageType": "response",
+            "add": {
+              "X-Frame-Options": [
+                "deny"
+              ],
+              "X-Content-Type-Options": [
+                "nosniff"
+              ]
+            }
+          }
+        }
       ],
       "handler": {
         "type": "Router",

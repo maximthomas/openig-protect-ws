@@ -27,9 +27,11 @@ if (jwt!=null && jwt.startsWith("Bearer eyJ")) {
 
         //check role
          if (!sjwt.getClaimsSet().keys().contains("role") 
-            || !allowedRole.equals(sjwt.getClaimsSet().getClaim("role", String.class))) {
+            || !allowedRoles.contains(sjwt.getClaimsSet().getClaim("role", String.class))) {
              return getErrorResponse(Status.FORBIDDEN, "Forbidden")            
         }
+        attributes["sub"] = sjwt.getClaimsSet().getClaim("sub", String.class)
+        attributes["role"] = sjwt.getClaimsSet().getClaim("role", String.class)
 
         //add name from JWT claim to header
         request.headers.put('X-Auth-Username', sjwt.getClaimsSet().getClaim("name"))

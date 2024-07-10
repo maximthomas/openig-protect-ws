@@ -1,0 +1,69 @@
+{
+  "name": "${matches(request.uri.path, '^/secure')}",
+  "condition": "${matches(request.uri.path, '^/secure')}",
+  "monitor": true,
+  "timer": true,
+  "handler": {
+    "type": "Chain",
+    "config": {
+      "filters": [
+        {
+          "type": "ScriptableFilter",
+          "config": {
+            "type": "application/x-groovy",
+            "file": "jwt.groovy",
+            "args": {
+              "iss": {
+                "sample-service": "${read('/usr/local/openig-config/keys/public_key.pem')}"
+              },
+              "allowedRoles": [
+                "manager",
+                "supervisor"
+              ]
+            }
+          }
+        },
+        {
+          "type": "ThrottlingFilter",
+          "name": "auth-users-throttling",
+          "config": {
+            "requestGroupingPolicy": "${attributes['sub']}",
+            "throttlingRatePolicy": {
+              "type": "MappedThrottlingPolicy",
+              "config": {
+                "throttlingRateMapper": "${attributes['role']}",
+                "throttlingRatesMapping": {
+                  "supervisor": {
+                    "numberOfRequests": 10,
+                    "duration": "10 s"
+                  }
+                },
+                "defaultRate": {
+                  "numberOfRequests": 5,
+                  "duration": "5 s"
+                }
+              }
+            }
+          }
+        },
+        "content-type-accept-match"    
+      ],
+      "handler": "EndpointHandler"
+    }
+  },
+  "heap": [
+    {
+      "name": "EndpointHandler",
+      "type": "DispatchHandler",
+      "config": {
+        "bindings": [
+          {
+            "handler": "ClientHandler",
+            "capture": "all",
+            "baseURI": "${system['endpoint.api']}"
+          }
+        ]
+      }
+    }
+  ]
+}
