@@ -9,8 +9,9 @@
       "filters": [
         {
           "type": "ThrottlingFilter",
+          "name": "simple-throttling",
           "config": {
-            "requestGroupingPolicy": "",
+            "requestGroupingPolicy": "${(not empty request.headers['X-Real-Ip'][0])?request.headers['X-Real-Ip'][0]:contexts.client.remoteAddress}",
             "rate": {
               "numberOfRequests": 5,
               "duration": "5 s"
